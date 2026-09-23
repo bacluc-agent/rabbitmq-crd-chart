@@ -1,0 +1,39 @@
+name: Publish Helm Chart
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  HELM_VERSION: 4.1.0
+  HELM_IMAGE: ghcr.io/appuio/helm-v4
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: setup helm
+        run: |
+          mkdir -p ~/.config/helm/registry/
+          echo "{}" > ~/.config/helm/registry/config.json
+      - name: Derive chart version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="$(grep '^version:' Chart.yaml | awk '{print $2}')"
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Package Helm chart
+        run: scripts/helm-docker.sh package . --version "$VERSION"
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | scripts/helm-docker.sh registry login ghcr.io --username "${{ github.actor }}" --password-stdin
+      - name: Push Helm chart
+        run: scripts/helm-docker.sh push ./*.tgz oci://ghcr.io/${{ github.repository }}
