@@ -1,0 +1,22 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track rabbitmq/cluster-operator tags in Chart.yaml",
+      "filePatterns": ["^Chart\\.yaml$"],
+      "matchStrings": ["rabbitmq-operator-version: \"(?<currentValue>[^\"]+)\""],
+      "depNameTemplate": "rabbitmq/cluster-operator",
+      "datasourceTemplate": "github-tags"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDepNames": ["rabbitmq/cluster-operator"],
+      "commitMessageTopic": "rabbitmq cluster-operator",
+      "prBodyNotes": [
+        "Upstream release: https://github.com/rabbitmq/cluster-operator/releases. Refresh `crds/` from the new upstream manifests and bump `rabbitmq-operator-version` in `Chart.yaml`, then cut a chart release tag."
+      ]
+    }
+  ]
+}

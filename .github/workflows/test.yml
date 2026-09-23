@@ -9,33 +9,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
       - name: Start Minikube
         uses: medyagh/setup-minikube@latest
-
       - name: Set up Helm
         uses: azure/setup-helm@v4
-
       - name: Lint
         run: helm lint .
-
-      - name: Template default
-        run: helm template test .
-
+      - name: Template with CRDs
+        run: helm template test --include-crds .
       - name: Install chart
-        run: helm install test . --wait --timeout 10m --create-namespace --namespace rabbitmq-system
-
-      - name: Assert CRDs exist
+        run: helm install crds . --wait --timeout 5m
+      - name: Assert CRDs installed
         run: |
           kubectl get crd rabbitmqclusters.rabbitmq.com
           kubectl get crd queues.rabbitmq.com
-          kubectl get crd vhosts.rabbitmq.com
-
+          kubectl get crd exchanges.rabbitmq.com
       - name: Uninstall chart
-        run: helm uninstall test -n rabbitmq-system --wait
-
+        run: helm uninstall crds --wait
       - name: Assert CRDs retained
         run: |
           kubectl get crd rabbitmqclusters.rabbitmq.com
           kubectl get crd queues.rabbitmq.com
-          kubectl get crd vhosts.rabbitmq.com

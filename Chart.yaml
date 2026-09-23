@@ -1,6 +1,7 @@
 apiVersion: v2
 name: rabbitmq-crd
-description: Helm chart for RabbitMQ CRDs (cluster + messaging-topology operator)
+description: Helm chart for the RabbitMQ CRDs (rabbitmq.com group)
 type: application
 version: 0.0.1
-appVersion: "0.0.1"
+annotations:
+  rabbitmq-operator-version: "2.23.0"
