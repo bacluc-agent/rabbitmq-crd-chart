@@ -16,7 +16,7 @@ jobs:
       - name: Lint
         run: helm lint .
       - name: Template with CRDs
-        run: helm template test --include-crds .
+        run: helm template test .
       - name: Install chart
         run: helm install crds . --wait --timeout 5m
       - name: Assert CRDs installed
