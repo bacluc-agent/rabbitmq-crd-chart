@@ -1,0 +1,41 @@
+name: Smoke test
+on:
+  pull_request:
+  push:
+  workflow_dispatch: {}
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Start Minikube
+        uses: medyagh/setup-minikube@latest
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Lint
+        run: helm lint .
+
+      - name: Template default
+        run: helm template test .
+
+      - name: Install chart
+        run: helm install test . --wait --timeout 10m --create-namespace --namespace rabbitmq-system
+
+      - name: Assert CRDs exist
+        run: |
+          kubectl get crd rabbitmqclusters.rabbitmq.com
+          kubectl get crd queues.rabbitmq.com
+          kubectl get crd vhosts.rabbitmq.com
+
+      - name: Uninstall chart
+        run: helm uninstall test -n rabbitmq-system --wait
+
+      - name: Assert CRDs retained
+        run: |
+          kubectl get crd rabbitmqclusters.rabbitmq.com
+          kubectl get crd queues.rabbitmq.com
+          kubectl get crd vhosts.rabbitmq.com
