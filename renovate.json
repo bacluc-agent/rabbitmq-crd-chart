@@ -4,7 +4,7 @@
     {
       "customType": "regex",
       "description": "Track rabbitmq/cluster-operator tags in Chart.yaml",
-      "filePatterns": ["^Chart\\.yaml$"],
+      "managerFilePatterns": ["^Chart\\.yaml$"],
       "matchStrings": ["rabbitmq-operator-version: \"(?<currentValue>[^\"]+)\""],
       "depNameTemplate": "rabbitmq/cluster-operator",
       "datasourceTemplate": "github-tags"
