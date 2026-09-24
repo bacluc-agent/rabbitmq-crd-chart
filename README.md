@@ -1,9 +1,9 @@
 # rabbitmq-crd-chart
 
-Helm chart for the RabbitMQ CRDs (rabbitmq.com group). Installs the 13 CRDs
-of the RabbitMQ Cluster Operator and Messaging Topology Operator.
+Helm chart for the RabbitMQ CRDs (rabbitmq.com group). Installs the RabbitMQ
+Cluster Operator CRD (`rabbitmqclusters.rabbitmq.com`).
 
-CRDs live in `crds/`, so they are installed on `helm install`, are idempotent
+CRDs live in `templates/crd/`, so they are installed on `helm install`, are idempotent
 on re-install, and are never deleted on `helm uninstall`.
 
 ## Usage
