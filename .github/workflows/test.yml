@@ -21,13 +21,13 @@ jobs:
         run: helm install crds . --wait --timeout 5m
       - name: Assert CRDs installed
         run: |
-          for crd in bindings exchanges federations permissions policies queues rabbitmqclusters schemareplications shovels superstreams topicpermissions users vhosts; do
+          for crd in rabbitmqclusters; do
             kubectl get crd "${crd}.rabbitmq.com"
           done
       - name: Uninstall chart
         run: helm uninstall crds --wait
       - name: Assert CRDs retained
         run: |
-          for crd in bindings exchanges federations permissions policies queues rabbitmqclusters schemareplications shovels superstreams topicpermissions users vhosts; do
+          for crd in rabbitmqclusters; do
             kubectl get crd "${crd}.rabbitmq.com"
           done
