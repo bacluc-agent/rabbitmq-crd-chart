@@ -1,0 +1,41 @@
+name: Refresh CRD
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    # Only Renovate branches carry a cluster-operator version bump to act on.
+    if: ${{ startsWith(github.head_ref, 'renovate/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+      # 6.0.1 is load-bearing: the CRD is re-emitted with PyYAML's dumper.
+      - run: pip install --disable-pip-version pyyaml==6.0.1
+      - name: Refresh CRD
+        run: scripts/refresh-crd.py
+      - name: Commit refreshed CRD
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add templates/crd/rabbitmqclusters.rabbitmq.com.yaml
+          if git diff --staged --quiet; then
+            echo "CRD already matches the pinned version; nothing to commit."
+            exit 0
+          fi
+          VERSION="$(grep -oP '(?<=rabbitmq-operator-version: ")[^"]+' Chart.yaml)"
+          git commit -m "chore: refresh RabbitMQ CRD for cluster-operator ${VERSION}"
+          git push

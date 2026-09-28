@@ -9,6 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Assert CRD matches pinned operator version
+        run: |
+          pin="$(sed -n 's/^ *rabbitmq-operator-version: *//p' Chart.yaml | tr -d "\"'" | head -1)"
+          marker="$(sed -n 's/^ *rabbitmq\.com\/operator-version: *//p' templates/crd/rabbitmqclusters.rabbitmq.com.yaml | tr -d "\"'" | head -1)"
+          if [ "$pin" != "$marker" ]; then
+            echo "Chart.yaml pins cluster-operator '$pin' but the CRD is '${marker:-unstamped}'" >&2
+            exit 1
+          fi
       - name: Start Minikube
         uses: medyagh/setup-minikube@latest
       - name: Set up Helm
