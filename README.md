@@ -30,6 +30,6 @@ after `helm uninstall`, and the four `metadata.labels`.
 
 ## Release
 
-Label the merged PR `bump:patch` to publish. The release automation derives the
+Label the PR `bump:patch` **before** merge to publish. The release automation derives the
 next chart version from the existing `v*` tags and dispatches
 `Publish Helm Chart`, which pushes `v<version>` to GHCR.

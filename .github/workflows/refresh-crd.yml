@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: "3.12"
       # 6.0.1 is load-bearing: the CRD is re-emitted with PyYAML's dumper.
-      - run: pip install --disable-pip-version pyyaml==6.0.1
+      - run: pip install --disable-pip-version-check pyyaml==6.0.1
       - name: Refresh CRD
         run: scripts/refresh-crd.py
       - name: Commit refreshed CRD
