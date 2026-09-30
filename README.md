@@ -26,7 +26,7 @@ pip install pyyaml==6.0.1 && scripts/refresh-crd.py
 
 It takes no arguments, runs from any directory, is idempotent — a no-op that makes no network request when the CRD already carries the pinned version — and fails loudly rather than writing a bad file.
 
-Renovate cannot run that script itself. Its `postUpgradeTasks` need `allowedCommands`, which is `globalOnly: true` with an empty default, so the validator rejects it from repo config; `allowShellExecutorForPostUpgradeCommands` defaults to `false`, so the hosted app has no shell to run a script with. Every operator bump therefore shows a red `renovate/artifacts` check. That is expected, and it is why the refresh lives in a GitHub Actions workflow instead.
+Renovate cannot run that script itself: its `postUpgradeTasks` need `allowedCommands`, which is `globalOnly: true` with `default: []`, so the validator rejects it from repo config, and the hosted app provides no shell to run a script with. That is why the refresh lives in a GitHub Actions workflow instead.
 
 ## Release
 
