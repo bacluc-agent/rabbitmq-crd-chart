@@ -1,0 +1,33 @@
+name: Smoke test
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+      - run: pip install --disable-pip-version-check pyyaml==6.0.1
+      - name: Assert CRD matches pinned operator version
+        run: |
+          python3 -c '
+          import pathlib, sys, yaml
+          root = pathlib.Path(".")
+          pin = str(yaml.safe_load((root / "Chart.yaml").read_text())["annotations"]["rabbitmq-operator-version"])
+          crd = yaml.safe_load((root / "templates/crd/rabbitmqclusters.rabbitmq.com.yaml").read_text())
+          marker = ((crd.get("metadata") or {}).get("annotations") or {}).get("rabbitmq.com/operator-version")
+          sys.exit("Chart.yaml pins cluster-operator %r but the CRD marker is %r" % (pin, marker)) if pin != marker else print("CRD marker %s matches Chart.yaml pin" % marker)
+          '
+      - name: Lint
+        run: helm lint .
+      - name: Template
+        run: helm template smoke . > /dev/null

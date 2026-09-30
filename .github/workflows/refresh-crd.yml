@@ -1,0 +1,42 @@
+name: Refresh CRD
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-crd-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    if: ${{ startsWith(github.head_ref, 'renovate/') }}
+    runs-on: ubuntu-latest
+    env:
+      HEAD_REF: ${{ github.head_ref }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+      - run: pip install --disable-pip-version-check pyyaml==6.0.1
+      - name: Regenerate CRD
+        run: scripts/refresh-crd.py
+      - name: Commit refreshed CRD
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add templates/crd/rabbitmqclusters.rabbitmq.com.yaml
+          if git diff --staged --quiet; then
+            echo "CRD already matches the pinned operator version; nothing to commit."
+            exit 0
+          fi
+          VERSION="$(python3 -c "import yaml;print(yaml.safe_load(open('Chart.yaml'))['annotations']['rabbitmq-operator-version'])")"
+          git commit -m "chore(crd): refresh RabbitMQ CRD for cluster-operator ${VERSION}"
+          git push origin "HEAD:${HEAD_REF}"
