@@ -4,7 +4,7 @@
     {
       "customType": "regex",
       "description": "Track rabbitmq/cluster-operator tags in Chart.yaml",
-      "managerFilePatterns": ["^Chart\\.yaml$"],
+      "managerFilePatterns": ["Chart\\.yaml"],
       "matchStrings": ["rabbitmq-operator-version: \"(?<currentValue>[^\"]+)\""],
       "depNameTemplate": "rabbitmq/cluster-operator",
       "datasourceTemplate": "github-tags"
@@ -15,7 +15,7 @@
       "matchDepNames": ["rabbitmq/cluster-operator"],
       "commitMessageTopic": "rabbitmq cluster-operator",
       "prBodyNotes": [
-        "Upstream release: https://github.com/rabbitmq/cluster-operator/releases. Refresh `crds/` from the new upstream manifests and bump `rabbitmq-operator-version` in `Chart.yaml`, then cut a chart release tag."
+        "Upstream release: https://github.com/rabbitmq/cluster-operator/releases. The `Refresh CRD` GitHub Actions workflow regenerates `templates/crd/rabbitmqclusters.rabbitmq.com.yaml` from the pinned version and commits it into this PR, so no manual CRD refresh is needed. To publish: label the PR `bump:patch` and merge — `projectsyn/pr-label-tag-action` then tags the next patch release after `v0.0.3` and dispatches the `Publish Helm Chart` workflow."
       ]
     }
   ]
