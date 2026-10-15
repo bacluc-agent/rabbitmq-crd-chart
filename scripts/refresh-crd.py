@@ -38,7 +38,7 @@ LABELS = {
 }
 
 CRD_NAME = "rabbitmqclusters.rabbitmq.com"
-# The raw upstream CRD is ~293 kB (v2.6.0) to ~364 kB (v2.23.0). This floor exists
+# The raw upstream CRD is ~287 kB (v2.6.0) to ~364 kB (v2.23.0). This floor exists
 # only to reject a truncated/error body early; the kind/name check is the real guard.
 MIN_BYTES = 100_000
 SEMVER = re.compile(r"^\d+\.\d+\.\d+([-+].*)?$")
